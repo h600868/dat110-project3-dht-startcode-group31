@@ -45,7 +45,15 @@ public class Util {
 		
 		// Task: given an identifier, id: check whether pred < id <= node
 		
-		return false;
+		if (lower.compareTo(upper) < 0) {
+			
+			return lower.compareTo(id) <= 0 && id.compareTo(upper) <= 0;
+			
+		} else {
+			
+			return lower.compareTo(id) < 0 || id.compareTo(upper) <= 0;
+			
+		}
 
 	}
 	

@@ -6,6 +6,7 @@ package no.hvl.dat110.chordoperations;
 import java.math.BigInteger;
 import java.rmi.RemoteException;
 import java.rmi.registry.Registry;
+import java.util.List;
 import java.util.Set;
 import java.util.Timer;
 
@@ -15,6 +16,7 @@ import org.apache.logging.log4j.Logger;
 import no.hvl.dat110.middleware.Message;
 import no.hvl.dat110.middleware.Node;
 import no.hvl.dat110.rpc.interfaces.NodeInterface;
+import no.hvl.dat110.util.Hash;
 import no.hvl.dat110.util.Util;
 
 /**
@@ -171,6 +173,28 @@ public class ChordProtocols {
 			// then: use chordnode to find the successor of k. (i.e., succnode = chordnode.findSuccessor(k))
 			
 			// check that succnode is not null, then add it to the finger table
+			
+			List<NodeInterface> fingerTable = chordnode.getFingerTable();
+			fingerTable.clear();
+
+			BigInteger addressSize = Hash.addressSize();
+			int mbit = Hash.bitSize();
+
+			BigInteger nodeId = chordnode.getNodeID();
+
+			for(int i = 0; i<mbit; i++) {
+				BigInteger k = nodeId.add(BigInteger.valueOf(2).pow(i)).mod(addressSize);
+
+				NodeInterface succnode = chordnode.findSuccessor(k);
+
+				if(succnode != null) {
+					fingerTable.add(succnode);
+				} else {
+					logger.error("No successor found for lookup ID: " + nodeId + " at index: " + i);
+
+				}
+
+			}
 
 		} catch (RemoteException e) {
 			//

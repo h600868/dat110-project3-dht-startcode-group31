@@ -96,20 +96,27 @@ public class FileManager {
     	// Task2: assign a replica as the primary for this file. Hint, see the slide (project 3) on Canvas
     	
     	// create replicas of the filename
-    	
-		// iterate over the replicas
-    	
-    	// for each replica, find its successor (peer/node) by performing findSuccessor(replica)
-    	
-    	// call the addKey on the successor and add the replica
-		
-		// implement a logic to decide if this successor should be assigned as the primary for the file
-    	
-    	// call the saveFileContent() on the successor and set isPrimary=true if logic above is true otherwise set isPrimary=false
-    	
-    	// increment counter
-		return counter;
-    }
+    			createReplicaFiles();
+    	    	
+    			// iterate over the replicas
+    			for (BigInteger replicaFile : replicafiles) {
+
+    				// for each replica, find its successor (peer/node) by performing findSuccessor(replica)
+    				NodeInterface successor = chordnode.findSuccessor(replicaFile);
+
+    				// call the addKey on the successor and add the replica
+    				successor.addKey(replicaFile);
+
+    				// implement a logic to decide if this successor should be assigned as the primary for the file
+    				boolean primary = counter == index;
+    				// call the saveFileContent() on the successor and set isPrimary=true if logic above is true otherwise set isPrimary=false
+    				successor.saveFileContent(this.filename, replicaFile, this.bytesOfFile, primary);
+
+    				// increment counter
+    				counter++;
+    			}
+    			return counter;
+    	    }
 	
 	/**
 	 * 
@@ -125,17 +132,22 @@ public class FileManager {
 		// Task: Given a filename, find all the peers that hold a copy of this file
 		
 		// generate the N replicas from the filename by calling createReplicaFiles()
-		
-		// iterate over the replicas of the file
-		
-		// for each replica, do findSuccessor(replica) that returns successor s.
-		
-		// get the metadata (Message) of the replica from the successor (i.e., active peer) of the file
-		
-		// save the metadata in the set activeNodesforFile.
-		
-		return activeNodesforFile;
-	}
+				createReplicaFiles();
+
+				// iterate over the replicas of the file
+				for (BigInteger replicaFile : replicafiles) {
+
+					// for each replica, do findSuccessor(replica) that returns successor s.
+					NodeInterface successor = chordnode.findSuccessor(replicaFile);
+
+					// get the metadata (Message) of the replica from the successor (i.e., active peer) of the file
+					Message metadata = successor.getFilesMetadata(replicaFile);
+
+					// save the metadata in the set activeNodesforFile.
+					activeNodesforFile.add(metadata);
+				}
+				return activeNodesforFile;
+			}
 	
 	/**
 	 * Find the primary server - Remote-Write Protocol
@@ -146,15 +158,18 @@ public class FileManager {
 		// Task: Given all the active peers of a file (activeNodesforFile()), find which is holding the primary copy
 		
 		// iterate over the activeNodesforFile
-		
-		// for each active peer (saved as Message)
-		
-		// use the primaryServer boolean variable contained in the Message class to check if it is the primary or not
-		
-		// return the primary when found (i.e., use Util.getProcessStub to get the stub and return it)
-		
-		return null; 
-	}
+				for (Message message : activeNodesforFile) {
+
+					// for each active peer (saved as Message)
+					// use the primaryServer boolean variable contained in the Message class to check if it is the primary or not
+					if (message.isPrimaryServer()) {
+
+						// return the primary when found (i.e., use Util.getProcessStub to get the stub and return it)
+						return Util.getProcessStub(message.getNodeName(), message.getPort());
+					}
+				}
+				return null; 
+			} 
 	
     /**
      * Read the content of a file and return the bytes
