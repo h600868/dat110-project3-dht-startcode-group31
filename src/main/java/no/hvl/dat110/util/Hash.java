@@ -30,6 +30,24 @@ public class Hash {
 		
 		// return the BigInteger
 		
+		try {
+			
+			MessageDigest md = MessageDigest.getInstance("MD5");
+			
+			byte[] digest = md.digest(entity.getBytes());
+			
+			String hexFormat = toHex(digest);
+			
+			hashint = new BigInteger(hexFormat,16);
+			
+			
+		} catch (NoSuchAlgorithmException e) {
+			
+			throw new RuntimeException(e);
+		}
+			
+		
+	
 		return hashint;
 	}
 	
@@ -43,7 +61,14 @@ public class Hash {
 		
 		// return the address size
 		
-		return null;
+		
+		BigInteger addressSize = null;
+		
+		int numberOfBits = bitSize();
+		
+		addressSize = BigInteger.valueOf(2).pow(numberOfBits);
+		
+		return addressSize;
 	}
 	
 	public static int bitSize() {
@@ -51,6 +76,16 @@ public class Hash {
 		int digestlen = 0;
 		
 		// find the digest length
+		
+		try {
+			
+			MessageDigest md = MessageDigest.getInstance("MD5");
+			
+			digestlen = md.getDigestLength();
+			
+		} catch (NoSuchAlgorithmException e) {
+			throw new RuntimeException(e);
+		}
 		
 		return digestlen*8;
 	}

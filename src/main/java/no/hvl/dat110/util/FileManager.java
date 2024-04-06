@@ -65,6 +65,17 @@ public class FileManager {
 		// hash the replica
 		
 		// store the hash in the replicafiles array.
+		
+		for(int i = 0; i <Util.numReplicas; i++) {
+			
+			String replicate = filename+i;
+			
+			hash = Hash.hashOf(replicate);
+			
+			replicafiles[i] = hash;
+			
+		}
+		
 	}
 	
     /**
